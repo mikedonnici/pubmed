@@ -12,10 +12,10 @@ import (
 const query = `asthma`
 
 var mockResponseJSON = map[string][]byte{
-	"count":   []byte{},
-	"idlist1": []byte{},
-	"idlist2": []byte{},
-	"idlist3": []byte{},
+	"count":   {},
+	"idlist1": {},
+	"idlist2": {},
+	"idlist3": {},
 }
 
 var mockResponseXML = map[string][]byte{
