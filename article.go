@@ -2,8 +2,8 @@ package pubmed
 
 import (
 	"fmt"
-	"time"
 	"strings"
+	"time"
 )
 
 // ArticleSet maps to the root node of the returned XML
@@ -130,7 +130,6 @@ func bestPubDate(a Article) (time.Time, error) {
 	return time.Parse("2006-1-2", d)
 }
 
-
 // mergeKeyWords adds more values to the returned keywords to assist searches. Medline articles return only
 // MeshHeadings (no keywords) so these are added in, as well as authors and the various id values.
 func mergeKeywords(a Article) []string {
@@ -139,7 +138,7 @@ func mergeKeywords(a Article) []string {
 	xs = append(xs, a.MeshHeadings...)
 
 	for _, v := range a.Authors {
-		xs = append(xs, v.LastName + " " + v.Initials)
+		xs = append(xs, v.LastName+" "+v.Initials)
 	}
 
 	for _, v := range a.ArticleIDs {
