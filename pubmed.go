@@ -13,9 +13,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-const BaseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
-const SearchURL = BaseURL + "/esearch.fcgi?db=pubmed&retmode=json&usehistory=y"
-const FetchURL = BaseURL + "/efetch.fcgi?db=pubmed&retmode=xml&rettype=abstract"
+const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
+const searchURL = baseURL + "/esearch.fcgi?db=pubmed&retmode=json&usehistory=y"
+const fetchURL = baseURL + "/efetch.fcgi?db=pubmed&retmode=xml&rettype=abstract"
 const queryBackDays = "&reldate=%v&datetype=pdat"
 const querySearchTerm = "&term=%v"
 const queryReturnMax = "&retmax=%v"
@@ -46,7 +46,7 @@ func NewSearch(query string) *Query {
 // Search executes the query, results are stored at Pubmed and referenced by the Key and WenEnv values
 func (ps *Query) Search() error {
 
-	qURL := SearchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
+	qURL := searchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
 	xb, err := responseBody(qURL)
 	if err != nil {
 		return errors.Wrap(err, "Search")
@@ -82,7 +82,7 @@ func (ps *Query) Articles(startIndex, retMax int) (ArticleSet, error) {
 
 	var set ArticleSet
 
-	qURL := FetchURL +
+	qURL := fetchURL +
 		fmt.Sprintf(queryKey, ps.Key) +
 		fmt.Sprintf(queryWebEnv, ps.WebEnv) +
 		fmt.Sprintf(queryStartIndex, startIndex) +

@@ -62,6 +62,7 @@ type Author struct {
 	Initials string `xml:"Initials"`
 }
 
+// Print prints an article to stdout
 func (a *Article) Print() {
 	fmt.Println("==================================================================================================")
 	fmt.Println("Pubmed ID:", a.ID)
