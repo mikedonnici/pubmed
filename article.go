@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"encoding/json"
 )
 
 // ArticleSet maps to the root node of the returned XML
@@ -60,6 +61,11 @@ type Author struct {
 	Key      string `xml:"ValidYN,attr"`
 	LastName string `xml:"LastName"`
 	Initials string `xml:"Initials"`
+}
+
+// JSON returns a JSON string representation of the article
+func (a *Article) JSON() ([]byte, error) {
+	return json.Marshal(a)
 }
 
 // Print prints an article to stdout

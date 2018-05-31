@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/8o8/articles/pubmed"
+	"github.com/mikedonnici/pubmed"
 	"github.com/matryer/is"
 )
 
@@ -19,7 +19,7 @@ var mockResponseJSON = map[string][]byte{
 }
 
 var mockResponseXML = map[string][]byte{
-	"articles": []byte{},
+	"articles": {},
 }
 
 func init() {
