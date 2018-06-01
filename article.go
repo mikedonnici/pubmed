@@ -17,7 +17,7 @@ type Article struct {
 	ID            int             `xml:"MedlineCitation>PMID"`
 	ArticleIDs    []ArticleID     `xml:"PubmedData>ArticleIdList>ArticleId"`
 	Title         string          `xml:"MedlineCitation>Article>ArticleTitle"`
-	Abstract      []AbstractParts `xml:"MedlineCitation>Article>Abstract>AbstractParts"`
+	Abstract      []AbstractParts `xml:"MedlineCitation>Article>Abstract>AbstractText"`
 	Keywords      []string        `xml:"MedlineCitation>KeywordList>Keyword"`
 	MeshHeadings  []string        `xml:"MedlineCitation>MeshHeadingList>MeshHeading>DescriptorName"`
 	Authors       []Author        `xml:"MedlineCitation>Article>AuthorList>Author"`
@@ -38,9 +38,10 @@ type Article struct {
 	PubDayFallback   string `xml:"PubmedData>History>PubMedPubDate>Day"`
 
 	// These will be set after the fact
-	PubDate  time.Time
-	Citation string
-	URL      string
+	PubDate     time.Time
+	Citation    string
+	URL         string
+	Description string
 }
 
 // AbstractParts represents a single section in the article abstract. It may contain one or more sections or
@@ -74,6 +75,7 @@ func (a *Article) Print() {
 	fmt.Println("Pubmed ID:", a.ID)
 	fmt.Println("All IDs:", a.ArticleIDs)
 	fmt.Println("Title:", a.Title)
+	fmt.Println("Description:", a.Description)
 	l := len(a.Abstract)
 	fmt.Printf("Abstract (%v): %s\n", l, a.Abstract)
 	l = len(a.Keywords)
@@ -174,4 +176,15 @@ func articleURL(a Article) string {
 // citation returns a suitably formatted citation string
 func citation(a Article) string {
 	return fmt.Sprintf("%s. %s; %s(%s): %s", a.Journal, a.PubYear, a.Volume, a.Issue, a.Pages)
+}
+
+// description will come from the <Abstract> node. This contains sub nodes, <AbstractText>
+// that may be of different types, distinguished by a "label" attribute with values like "BACKGROUND",
+// "METHODS", "RESULTS", "CONCLUSION", "CLINICAL TRIAL REGISTRATION". For now, take the first one
+// which is generally "BACKGROUND". It may also be empty.
+func description(a Article) string {
+	if len(a.Abstract) > 0 {
+		return a.Abstract[0].Value
+	}
+	return ""
 }

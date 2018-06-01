@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"strings"
 )
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
@@ -35,8 +36,8 @@ type Query struct {
 	WebEnv      string `json:"webenv"`
 }
 
-// NewSearch returns a pointer to a Query with some defaults set
-func NewSearch(query string) *Query {
+// NewQuery returns a pointer to a Query with some defaults set
+func NewQuery(query string) *Query {
 	return &Query{
 		BackDays: defaultBackDays,
 		Term:     query,
@@ -45,12 +46,17 @@ func NewSearch(query string) *Query {
 
 // Search executes the query, results are stored at Pubmed and referenced by the Key and WenEnv values
 func (ps *Query) Search() error {
-
 	qURL := searchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
+	fmt.Println(qURL)
 	xb, err := responseBody(qURL)
 	if err != nil {
-		return errors.Wrap(err, "Search")
+		return err
 	}
+	return ps.ReadSearchResponse(xb)
+}
+
+// ReadSearchResponse decodes the response body from a search request into the relevant Query fields
+func (ps *Query) ReadSearchResponse(response []byte) error {
 
 	var r = struct {
 		Result struct {
@@ -59,7 +65,8 @@ func (ps *Query) Search() error {
 			WebEnv   string `json:"webenv"`
 		} `json:"esearchresult"`
 	}{}
-	err = json.Unmarshal(xb, &r)
+
+	err := json.Unmarshal(response, &r)
 	if err != nil {
 		return errors.Wrap(err, "Search, Unmarshal")
 	}
@@ -80,8 +87,6 @@ func (ps *Query) Search() error {
 // Ref: https://www.ncbi.nlm.nih.gov/books/NBK25499/#_chapter4_EFetch_
 func (ps *Query) Articles(startIndex, retMax int) (ArticleSet, error) {
 
-	var set ArticleSet
-
 	qURL := fetchURL +
 		fmt.Sprintf(queryKey, ps.Key) +
 		fmt.Sprintf(queryWebEnv, ps.WebEnv) +
@@ -89,19 +94,30 @@ func (ps *Query) Articles(startIndex, retMax int) (ArticleSet, error) {
 		fmt.Sprintf(queryReturnMax, retMax)
 	xb, err := responseBody(qURL)
 	if err != nil {
-		return set, errors.Wrap(err, "Articles could not get response body")
+		return ArticleSet{}, errors.Wrap(err, "Articles could not get response body")
 	}
 
-	err = xml.Unmarshal(xb, &set)
+	return ReadArticlesResponse(xb)
+}
+
+// ReadArticleResponse decodes the xml response body from a request to fetch articles, into an ArticleSet
+func ReadArticlesResponse(response []byte) (ArticleSet, error) {
+
+	var set ArticleSet
+
+	err := xml.Unmarshal(response, &set)
 	if err != nil {
-		return set, errors.Wrap(err, "Articles could not unmarshal response body")
+		return set, errors.Wrap(err, "ReadArticlesResponse")
 	}
 
 	for i, a := range set.Articles {
+		set.Articles[i].Title = replaceQuotes(set.Articles[i].Title)
+		set.Articles[i].Description = replaceQuotes(description(a))
 		set.Articles[i].PubDate, _ = bestPubDate(a) // todo ... ignore the error?
 		set.Articles[i].Keywords = mergeKeywords(a)
 		set.Articles[i].URL = articleURL(a)
 		set.Articles[i].Citation = citation(a)
+
 	}
 
 	return set, nil
@@ -118,4 +134,9 @@ func responseBody(url string) ([]byte, error) {
 	defer r.Body.Close()
 
 	return ioutil.ReadAll(r.Body)
+}
+
+// replaceQuotes replaces double quotes with single quotes, to avoid breaking some JSON encoded/decode functions.
+func replaceQuotes(s string) string {
+	return strings.Replace(s, `"`, `'`, -1)
 }

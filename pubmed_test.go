@@ -12,10 +12,7 @@ import (
 const query = `asthma`
 
 var mockResponseJSON = map[string][]byte{
-	"count":   {},
-	"idlist1": {},
-	"idlist2": {},
-	"idlist3": {},
+	"search":   {},
 }
 
 var mockResponseXML = map[string][]byte{
@@ -43,53 +40,61 @@ func init() {
 	}
 }
 
-//func TestResultsSetIDs(t *testing.T) {
-//	var err error
-//	is := is.New(t)
-//	ps := pubmed.NewSearch(query)
-//
-//	ps.Result.MaxSetSize = 1000
-//	ps.Result.Total, err = pubmed.ResultsCount(mockResponseJSON["count"])
-//	is.NoErr(err)             // Error setting Total
-//	is.Equal(ps.NumSets(), 3) // Expect 3 sets
-//
-//	xs, err := pubmed.ResultsSetIDs(mockResponseJSON["idlist1"])
-//	is.NoErr(err) // Error getting ids from list1
-//	is.Equal(len(xs), 1000) // List 1 should have 1000 IDs
-//
-//	xs, err = pubmed.ResultsSetIDs(mockResponseJSON["idlist2"])
-//	is.NoErr(err) // Error getting ids from list1
-//	is.Equal(len(xs), 1000) // List 2 should have 1000 IDs
-//
-//	xs, err = pubmed.ResultsSetIDs(mockResponseJSON["idlist3"])
-//	is.NoErr(err) // Error getting ids from list3
-//	is.Equal(len(xs), 70) // List 3 should have 70 IDs
-//}
+func TestReadSearchResponse(t *testing.T) {
+	is := is.New(t)
+	ps := pubmed.NewQuery("test search term not used")
+	xb := []byte(mockResponseJSON["search"]) // testdata.search.json
+	ps.ReadSearchResponse(xb)
+	is.Equal(ps.ResultCount, 36332) // Incorrect result count
+	is.Equal(ps.Key, "1") // Incorrect query key
+	is.Equal(ps.WebEnv, "NCID_1_243404818_130.14.22.215_9001_1527820979_1002563964_0MetA0_S_MegaStore") // Incorrect web env
+}
+
+func TestReadArticleResponse(t *testing.T) {
+	is := is.New(t)
+	//ps := pubmed.NewQuery("test search term not used")
+	xb := []byte(mockResponseXML["articles"]) // testdata.search.json
+	xa, err := pubmed.ReadArticlesResponse(xb)
+	is.NoErr(err) // ReadArticleResponse error
+	is.Equal(len(xa.Articles), 2) // Should be 2 articles
+
+	exp := "MRI with gadofosveset: A potential marker for permeability in myocardial infarction."
+	got := xa.Articles[0].Title
+	is.Equal(exp, got) // Article title
+
+	// Trim description to first 17 chars
+	exp = "Acute ischemia is"
+	got = xa.Articles[0].Description[:17]
+	is.Equal(exp, got) // Article description
+}
+
+
+
 //
 //
 //// Real queries
 //
-func TestRealSearch(t *testing.T) {
-	is := is.New(t)
-	ps := pubmed.NewSearch(query)
-	ps.BackDays = 100
-	err := ps.Search()
-	is.NoErr(err)               // Search error
-	is.True(ps.ResultCount > 0) // No results for last 100 days?
-	set, err := ps.Articles(0, 1000)
-	is.NoErr(err) // Fetch error
-
-	for _, a := range set.Articles {
-		if len(a.MeshHeadings) > 0 {
-			a.Print()
-		}
-	}
-}
+//func TestRealSearch(t *testing.T) {
+//	is := is.New(t)
+//	ps := pubmed.NewQuery(query)
+//	ps.BackDays = 100
+//	err := ps.Search()
+//	is.NoErr(err)               // Search error
+//	is.True(ps.ResultCount > 0) // No results for last 100 days?
+//	set, err := ps.Articles(0, 1000)
+//	is.NoErr(err) // Fetch error
+//
+//	for _, a := range set.Articles {
+//		if len(a.MeshHeadings) > 0 {
+//			a.Print()
+//		}
+//	}
+//}
 
 //
 //func TestFetchArticles(t *testing.T) {
 //	is := is.New(t)
-//	ps := pubmed.NewSearch(query)
+//	ps := pubmed.NewQuery(query)
 //	ps.Name = "Cardiology"
 //	xps, err := ps.Articles("29735362", "29730991")
 //	is.NoErr(err) // Error fetching articles
