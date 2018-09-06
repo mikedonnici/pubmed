@@ -1,4 +1,4 @@
-// Package pubmed fetches articles from Pubmed
+// Package pubmed performs queries on the Pubmed database
 package pubmed
 
 import (
@@ -47,7 +47,6 @@ func NewQuery(query string) *Query {
 // Search executes the query, results are stored at Pubmed and referenced by the Key and WenEnv values
 func (ps *Query) Search() error {
 	qURL := searchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
-	fmt.Println(qURL)
 	xb, err := responseBody(qURL)
 	if err != nil {
 		return err
@@ -100,7 +99,21 @@ func (ps *Query) Articles(startIndex, retMax int) (ArticleSet, error) {
 	return ReadArticlesResponse(xb)
 }
 
-// ReadArticleResponse decodes the xml response body from a request to fetch articles, into an ArticleSet
+// ArticleByPMID fetches a single article by Pubmed ID
+func ArticleByPMID(pmid string) (Article, error) {
+
+	qURL := fetchURL + "&id=" + pmid
+	xb, err := responseBody(qURL)
+	if err != nil {
+		return Article{}, errors.Wrap(err, "Could not fetch article with pmid " + pmid)
+	}
+
+	// Still returns an article set, we just want the first one
+	xa, err := ReadArticlesResponse(xb)
+	return xa.Articles[0], err
+}
+
+// ReadArticlesResponse decodes the xml response body from a request to fetch articles, into an ArticleSet
 func ReadArticlesResponse(response []byte) (ArticleSet, error) {
 
 	var set ArticleSet
