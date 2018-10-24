@@ -1,10 +1,10 @@
 package pubmed
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-	"encoding/json"
 )
 
 // ArticleSet maps to the root node of the returned XML

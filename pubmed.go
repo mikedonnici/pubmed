@@ -105,7 +105,7 @@ func ArticleByPMID(pmid string) (Article, error) {
 	qURL := fetchURL + "&id=" + pmid
 	xb, err := responseBody(qURL)
 	if err != nil {
-		return Article{}, errors.Wrap(err, "Could not fetch article with pmid " + pmid)
+		return Article{}, errors.Wrap(err, "Could not fetch article with pmid "+pmid)
 	}
 
 	// Still returns an article set, we just want the first one

@@ -56,7 +56,10 @@ func main() {
 
 ## Intro to E-utilities (Pubmed API)
 
-For example, the query below searched for asthma articles with a publish date within the past 7 days:
+There is tonnes of info on the [Pubmed API](https://www.ncbi.nlm.nih.gov/books/NBK25497/). This is a basic 
+overview of the `esearch` and `efetch` queries.
+
+By way of example, the query below searched for asthma articles with a publish date within the past 7 days:
 
 ```http
 https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json \ 
