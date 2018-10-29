@@ -30,9 +30,8 @@ type Article struct {
 	PubMonth      string          `xml:"MedlineCitation>Article>Journal>JournalIssue>PubDate>Month"`
 	PubDay        string          `xml:"MedlineCitation>Article>Journal>JournalIssue>PubDate>Day"`
 
-	// Note that for these fallback dates there are multiple nodes as each is part of the records history
-	// Ideally, we would pick the xml node with the attribute 'entrez', which is the oldest.
-	// today loo into ensuring the oldest date element is selected for fallback
+	// There are multiple date values under this History node - the oldest date has the attribute 'entrez'.
+	// todo - look into ensuring the oldest date element is selected for fallback
 	PubYearFallback  string `xml:"PubmedData>History>PubMedPubDate>Year"`
 	PubMonthFallback string `xml:"PubmedData>History>PubMedPubDate>Month"`
 	PubDayFallback   string `xml:"PubmedData>History>PubMedPubDate>Day"`

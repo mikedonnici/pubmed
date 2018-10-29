@@ -9,8 +9,6 @@ import (
 	"github.com/mikedonnici/pubmed"
 )
 
-const query = `asthma`
-
 var mockResponseJSON = map[string][]byte{
 	"search": {},
 }
@@ -19,6 +17,7 @@ var mockResponseXML = map[string][]byte{
 	"articles": {},
 }
 
+// init sets up the mock responses
 func init() {
 
 	for i := range mockResponseJSON {
@@ -40,24 +39,24 @@ func init() {
 	}
 }
 
+// TestReadSearchResponse tests the un-marshalling of a mocked Pubmed esearch response
 func TestReadSearchResponse(t *testing.T) {
 	is := is.New(t)
-	ps := pubmed.NewQuery("test search term not used")
-	xb := []byte(mockResponseJSON["search"]) // testdata.search.json
+	ps := pubmed.NewQuery("not used for a mock")
+	xb := []byte(mockResponseJSON["search"])
 	ps.ReadSearchResponse(xb)
 	is.Equal(ps.ResultCount, 36332)                                                                     // Incorrect result count
 	is.Equal(ps.Key, "1")                                                                               // Incorrect query key
 	is.Equal(ps.WebEnv, "NCID_1_243404818_130.14.22.215_9001_1527820979_1002563964_0MetA0_S_MegaStore") // Incorrect web env
 }
 
+// TestReadArticleResponse tests the un-marshalling of a mocked Pubmed efetch response
 func TestReadArticleResponse(t *testing.T) {
 	is := is.New(t)
-	//ps := pubmed.NewQuery("test search term not used")
-	xb := []byte(mockResponseXML["articles"]) // testdata.search.json
+	xb := []byte(mockResponseXML["articles"])
 	xa, err := pubmed.ReadArticlesResponse(xb)
 	is.NoErr(err)                 // ReadArticleResponse error
 	is.Equal(len(xa.Articles), 2) // Should be 2 articles
-
 	exp := "MRI with gadofosveset: A potential marker for permeability in myocardial infarction."
 	got := xa.Articles[0].Title
 	is.Equal(exp, got) // Article title
@@ -68,10 +67,8 @@ func TestReadArticleResponse(t *testing.T) {
 	is.Equal(exp, got) // Article description
 }
 
-//
-//
-//// Real queries
-//
+// Real queries
+
 //func TestRealSearch(t *testing.T) {
 //	is := is.New(t)
 //	ps := pubmed.NewQuery(query)
@@ -89,7 +86,6 @@ func TestReadArticleResponse(t *testing.T) {
 //	}
 //}
 
-//
 //func TestFetchArticles(t *testing.T) {
 //	is := is.New(t)
 //	ps := pubmed.NewQuery(query)
