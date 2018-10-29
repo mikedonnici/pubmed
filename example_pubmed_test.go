@@ -8,7 +8,6 @@ import (
 const backDays = 365
 const query = "bee allergies"
 
-
 func Example() {
 
 	// Run a query
