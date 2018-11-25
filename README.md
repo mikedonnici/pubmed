@@ -83,11 +83,11 @@ This will return a maximum of 20 article IDs, as below:
 }
 ```
 
-Armed with limited set of IDs further queries are required to fetch the rest of the IDs. Additional queries are then required to fetch the actual article summaries. This means wrangling the batches of queries in the code.
+This `esearch` query returns a limited set of IDs so further queries are required to fetch the rest. Article summaries can then be fetched (in batches) by performing an `efetch` query.
 
-However, there is a better way! With a slight modification to the initial search query Pubmed will cache the entire result set allowing subsets to be retrieved as required.
+Pubmed can also cache the entire result set allowing subsets to be retrieved on subsequent requests. This reduces a bit of batch wrangling and only required one additional param on the `esearch` query:
 
-A new param is added to the request url - `userhistory=y`. This will tell Pubmed to store the results for subsequent retrieval.
+- `userhistory=y`
 
 `retstart` and `retmax` can be removed as they are irrelevant for the next step, and will just default to 0 and 20 respectively.
 
@@ -96,7 +96,7 @@ https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=jso
 datetype=pdat&reldate=7&usehistory=y&term=asthma
 ```
 
-The response now contains two additional fields, **`querykey`** and **`webenv`**. These fields are used to reference the stored results in subsequent requests.
+The response now contains two additional fields, **`querykey`** and **`webenv`**, which are used to reference the stored results in subsequent requests.
 
 ```json
 {
@@ -112,14 +112,14 @@ The response now contains two additional fields, **`querykey`** and **`webenv`**
 }
 ```
 
-**Note** - `idlist` contains up to 20 values as specified by the default value of `retmax`. However, the _stored_ search results contain all 90 articles found, as indicated by `count`. The _search_ query only has to be executed once.
+As mentioned, `retmax` will default to a value of 20 which will limit `idlist` to 20 values. Of course, this value can be overridden if required. However, the _stored_ search results actually contain _all_ of the 90 articles indicated by the `count` value and can be retrieved using an `efetch` query (see below). The `esearch` query only has to be executed once.
 
-Stored search results are retrieved by adding the following url params:
+Stored search results are retrieved by including the following url params on the `efetch` query:
 
 - `query_key=1`
 - `WebEnv=NCID_1_95852708_130.14.18.34_9001_1527045975_1203341711_0MetA0_S_MegaStore`
 
-Obviously the `WebEnv` value will be unique for each stored search.
+`WebEnv` is unique for each stored search.
 
 The `efetch` query becomes:
 
