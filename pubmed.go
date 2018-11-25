@@ -1,4 +1,12 @@
-// Package pubmed performs queries on the Pubmed database
+// Copyright 2018 Mike Donnici. All rights reserved.
+// Use of this source code is governed by an MIT
+// license that can be found in the LICENSE file.
+
+/*
+Package pubmed performs queries on the Pubmed database.
+
+
+*/
 package pubmed
 
 import (
@@ -10,8 +18,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
