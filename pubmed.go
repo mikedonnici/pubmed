@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -53,8 +52,6 @@ func NewQuery(query string) *Query {
 // Search executes the query, results are stored at Pubmed and referenced by the Key and WenEnv values
 func (ps *Query) Search() error {
 	qURL := searchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
-	fmt.Println(qURL)
-	os.Exit(1)
 	xb, err := responseBody(qURL)
 	if err != nil {
 		return err
