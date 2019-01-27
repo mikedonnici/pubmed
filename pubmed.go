@@ -10,6 +10,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -73,6 +74,11 @@ func (ps *Query) ReadSearchResponse(response []byte) error {
 	err := json.Unmarshal(response, &r)
 	if err != nil {
 		return errors.Wrap(err, "Search, Unmarshal")
+	}
+
+	if len(r.Result.Count) == 0 {
+		log.Println("ReadSearchResponse() = No results")
+		return nil
 	}
 
 	count, err := strconv.Atoi(r.Result.Count)
