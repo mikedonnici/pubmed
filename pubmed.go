@@ -2,11 +2,7 @@
 // Use of this source code is governed by an MIT
 // license that can be found in the LICENSE file.
 
-/*
-Package pubmed performs queries on the Pubmed database.
-
-
-*/
+// Package pubmed performs queries on the Pubmed database.
 package pubmed
 
 import (
@@ -15,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -26,7 +23,7 @@ import (
 const baseURL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 const searchURL = baseURL + "/esearch.fcgi?db=pubmed&retmode=json&usehistory=y"
 const fetchURL = baseURL + "/efetch.fcgi?db=pubmed&retmode=xml&rettype=abstract"
-const queryBackDays = "&reldate=%v&datetype=pdat"
+const queryBackDays = "&reldate=%v&datetype=edat"
 const querySearchTerm = "&term=%v"
 const queryReturnMax = "&retmax=%v"
 const queryStartIndex = "&retstart=%v"
@@ -56,6 +53,8 @@ func NewQuery(query string) *Query {
 // Search executes the query, results are stored at Pubmed and referenced by the Key and WenEnv values
 func (ps *Query) Search() error {
 	qURL := searchURL + fmt.Sprintf(queryBackDays, ps.BackDays) + fmt.Sprintf(querySearchTerm, ps.Term)
+	fmt.Println(qURL)
+	os.Exit(1)
 	xb, err := responseBody(qURL)
 	if err != nil {
 		return err
